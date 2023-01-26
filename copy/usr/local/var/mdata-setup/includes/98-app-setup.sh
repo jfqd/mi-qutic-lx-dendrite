@@ -44,7 +44,7 @@ chown postgres:crontab /var/spool/cron/crontabs/postgres
 chmod 0600 /var/spool/cron/crontabs/postgres
 
 echo "* Seup hostname for nginx"
-sed -i 's/my.hostname.com/${DOMAIN}/g' /etc/nginx/sites-available/dendrite
+sed -i "s/my.hostname.com/${DOMAIN}/g" /etc/nginx/sites-available/dendrite
 
 echo "* Create http-basic password for backup area"
 if [[ ! -f /etc/nginx/.htpasswd ]]; then
