@@ -55,8 +55,8 @@ adduser --disabled-password --system --quiet --home /home/dendrite --shell /usr/
 adduser dendrite dendrite
 mkdir -p /home/dendrite
 chown -R dendrite:dendrite /home/dendrite
-mkdir /var/logs/dentrite/
-chown -R dendrite:dendrite /var/logs/dentrite/
+mkdir /var/log/dentrite/
+chown -R dendrite:dendrite /var/log/dentrite/
 
 echo "* Build dendrite"
 git clone https://github.com/matrix-org/dendrite.git
