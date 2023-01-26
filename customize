@@ -65,7 +65,7 @@ generate-keys --private-key /etc/matrix_key.pem
 chown dendrite /etc/matrix_key.pem
 
 echo "* Install systemd file"
-mv /usr/local/var/tmp/dendrite_service /etc/systemd/system/
+mv /usr/local/var/tmp/dendrite_service /etc/systemd/system/dendrite.service
 systemctl daemon-reload
 
 echo "* Disable ssh"
