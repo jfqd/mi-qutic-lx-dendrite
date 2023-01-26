@@ -18,7 +18,7 @@ USER_PWD=$(/native/usr/sbin/mdata-get dendrite_password)
 SHARED_SECRET=$(openssl rand -hex 24)
 
 sed -i \
-    -e "s/server_name: localhost/server_name: matrix.autic.com/" \
+    -e "s/server_name: localhost/server_name: ${DOMAIN}/" \
     -e "s#private_key: matrix_key.pem#private_key: /etc/matrix_key.pem#" \
     -e "s#connection_string: postgresql://username:password@hostname/dendrite?sslmode=disable#connection_string: postgresql://dendrite:${DB_PWD}@127.0.0.1/dendrite?sslmode=disable#" \
     -e "s/    addresses:/    in_memory: false/" \
@@ -31,9 +31,6 @@ sed -i \
     /etc/dendrite.yaml
 chown -R dendrite:root /etc/dendrite.yaml
 chmod 0640 /etc/dendrite.yaml
-
-echo "* Setup admin account"
-create-account -config "/etc/dendrite.yaml" -username "${USER_SHORT}" -password "${USER_PWD}" -admin || true
       
 echo "* Setup postgresql backup"
 mkdir -p /var/lib/postgresql/backups
@@ -60,5 +57,8 @@ echo "* Start dendrite"
 systemctl enable dendrite || true
 systemctl start dendrite || true
 systemctl restart nginx || true
+
+echo "* Setup admin account"
+create-account -config "/etc/dendrite.yaml" -username "${USER_SHORT}" -password "${USER_PWD}" -admin || true
 
 exit 0
