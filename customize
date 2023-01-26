@@ -88,7 +88,7 @@ echo "* Ensure bootstrap will run next time"
 rm -rf /var/lib/bootstrap
 
 echo "* Cleaning up."
-rm -rf /usr/local/var
+rm -rf /usr/local/var/tmp/*
 rm -rf /root/dendrite
 rm -rf /root/go
 rm -rf /usr/local/go
@@ -97,5 +97,4 @@ apt-get -y autoremove || true
 rm /var/log/syslog || true
 touch /var/log/syslog || true
 rm /root/customize
-rm /var/log/.mdata-image.run
 history -c
