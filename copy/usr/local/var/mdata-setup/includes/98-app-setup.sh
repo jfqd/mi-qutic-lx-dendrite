@@ -25,7 +25,7 @@ sed -i \
     -e "s#    storage_path: ./#    storage_path: /home/dendrite/#" \
     -e "#base_path: ./media_store#base_path: /home/dendrite/media_store#" \
     -e "s#path: ./logs#path: /var/log/dentrite/#" \
-    -e "s/registration_shared_secret: \"\"/registration_shared_secret: \"${SHARED_SECRET}\"" \
+    -e "s/registration_shared_secret: \"\"/registration_shared_secret: \"${SHARED_SECRET}\"/" \
     -e "s/cache_size: 256/cache_size: 4096/" \
     -e "s/dns_cache:\n    enabled: false/dns_cache:\n    enabled: true/" \
     /etc/dendrite.yaml
