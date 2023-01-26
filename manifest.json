@@ -1,5 +1,5 @@
 {
-  "name":         "qutic-lx-peertube",
+  "name":         "qutic-lx-dendrite",
   "version":      "0.11.0",
   "description":  "qutic dendrite image",
   "organization": "qutic development",

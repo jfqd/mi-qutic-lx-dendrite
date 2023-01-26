@@ -14,10 +14,7 @@ echo "* Remove apt-get workaround"
 rm /usr/local/bin/apt-get || true
 
 echo "* Get latest"
-export DEBIAN_FRONTEND=noninteractive
-apt-get update
-yes no | apt-get -y upgrade
-apt-get -y dist-upgrade
+/usr/local/bin/uptodate
 
 echo "* Setup nginx"
 mkdir -p /etc/nginx/ssl
@@ -25,7 +22,7 @@ chmod 0500 /etc/nginx/ssl
 /usr/local/bin/ssl-selfsigned.sh -d /etc/nginx/ssl -f nginx
 mv /usr/local/var/tmp/nginx_service /usr/lib/systemd/system/nginx.service
 cp /usr/local/var/tmp/nginx.conf /etc/nginx/nginx.conf
-ln -s /etc/nginx/sites-available/peertube /etc/nginx/sites-enabled/peertube
+ln -s /etc/nginx/sites-available/dendrite /etc/nginx/sites-enabled/dendrite
 systemctl daemon-reload
 
 echo "* Add postgresql repository to apt sources"
@@ -100,4 +97,5 @@ apt-get -y autoremove || true
 rm /var/log/syslog || true
 touch /var/log/syslog || true
 rm /root/customize
+rm /var/log/.mdata-image.run
 history -c
