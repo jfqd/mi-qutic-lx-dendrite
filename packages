@@ -1,0 +1,9 @@
+g++
+git-core
+file
+pkg-config
+gcc
+autoconf
+build-essential
+nginx
+htop

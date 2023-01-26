@@ -1,0 +1,103 @@
+#!/usr/bin/bash
+
+set -o errexit
+
+locale-gen en_US.utf8
+
+export LC_ALL=en_US.utf8
+export LANGUAGE=en_US.utf8
+export LANG=en_US.utf8
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+echo "* Remove apt-get workaround"
+rm /usr/local/bin/apt-get || true
+
+echo "* Get latest"
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+yes no | apt-get -y upgrade
+apt-get -y dist-upgrade
+
+echo "* Setup nginx"
+mkdir -p /etc/nginx/ssl
+chmod 0500 /etc/nginx/ssl
+/usr/local/bin/ssl-selfsigned.sh -d /etc/nginx/ssl -f nginx
+mv /usr/local/var/tmp/nginx_service /usr/lib/systemd/system/nginx.service
+cp /usr/local/var/tmp/nginx.conf /etc/nginx/nginx.conf
+ln -s /etc/nginx/sites-available/peertube /etc/nginx/sites-enabled/peertube
+systemctl daemon-reload
+
+echo "* Add postgresql repository to apt sources"
+wget -O /usr/share/keyrings/postgresql.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+echo "deb [signed-by=/usr/share/keyrings/postgresql.asc] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/postgresql.list
+
+echo "* Install requirements"
+apt-get update
+apt-get install -y postgresql postgresql-contrib
+curl -LO https://go.dev/dl/go1.19.5.linux-amd64.tar.gz
+tar -C /usr/local -xvf go1.19.5.linux-amd64.tar.gz
+export PATH=$PATH:/usr/local/go/bin
+
+echo "* Setup postgresql"
+sed -i 's/local   all             all                                     password/local   all             all                                     peer/' \
+  /etc/postgresql/15/main/pg_hba.conf
+sed -i "s/#listen_addresses = 'localhost'/listen_addresses = 'localhost'/" \
+  /etc/postgresql/15/main/postgresql.conf
+
+echo "* Fix postgresql for lx-branch"
+sed -i -e "s|PIDFile=|#PIDFile=|" /lib/systemd/system/postgresql@.service
+systemctl daemon-reload
+
+echo "* Create dendrite user and group"
+addgroup dendrite
+adduser --disabled-password --system --quiet --home /home/dendrite --shell /usr/bin/bash dendrite
+adduser dendrite dendrite
+mkdir -p /home/dendrite
+chown -R dendrite:dendrite /home/dendrite
+mkdir /var/logs/dentrite/
+chown -R dendrite:dendrite /var/logs/dentrite/
+
+echo "* Build dendrite"
+git clone https://github.com/matrix-org/dendrite.git
+cd dendrite
+./build.sh
+mv bin/* /usr/local/bin/
+mv dendrite-sample.monolith.yaml /etc/dendrite.yaml
+generate-keys --private-key /etc/matrix_key.pem
+chown dendrite /etc/matrix_key.pem
+
+echo "* Install systemd file"
+mv /usr/local/var/tmp/dendrite_service /etc/systemd/system/
+systemctl daemon-reload
+
+echo "* Disable ssh"
+systemctl stop ssh
+systemctl disable ssh
+
+echo "* Create bash-history"
+cat >> /root/.bash_history << EOF
+systemctl edit --full dendrite
+systemctl daemon-reload
+systemctl reset-failed dendrite
+systemctl stop dendrite
+systemctl start dendrite
+systemctl reload nginx
+journalctl --since $(date '+%Y-%m-%d')
+journalctl -fu dendrite
+EOF
+
+echo "* Ensure bootstrap will run next time"
+rm -rf /var/lib/bootstrap
+
+echo "* Cleaning up."
+rm -rf /usr/local/var
+rm -rf /root/dendrite
+rm -rf /root/go
+rm -rf /usr/local/go
+apt-get -y remove g++ git-core file pkg-config gcc autoconf build-essential
+apt-get -y autoremove || true
+rm /var/log/syslog || true
+touch /var/log/syslog || true
+rm /root/customize
+history -c

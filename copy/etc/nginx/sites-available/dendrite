@@ -1,0 +1,61 @@
+# Upstreams
+upstream monolith{
+  server 127.0.0.1:8008;
+}
+
+# Redirect Options
+server {
+  listen 80;
+  server_name localhost;
+  # enforce https
+  return 301 https://$server_name$request_uri;
+}
+
+# HTTPS Server
+server {
+  listen 443 ssl; # IPv4
+  # listen [::]:443 ssl; # IPv6
+  server_name my.hostname.com;
+
+  ssl_certificate     /etc/nginx/ssl/nginx.pem;
+  ssl_certificate_key /etc/nginx/ssl/nginx.key;
+
+  proxy_set_header Host      $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_read_timeout         600;
+     
+  location /.well-known/matrix/server {
+     return 200 '{ "m.server": "my.hostname.com:443" }';
+  }
+     
+  location /.well-known/matrix/client {
+     # If your sever_name here doesn't match your matrix homeserver URL
+     # (e.g. hostname.com as server_name and matrix.hostname.com as homeserver URL)
+     # add_header Access-Control-Allow-Origin '*';
+     return 200 '{ "m.homeserver": { "base_url": "https://my.hostname.com" } }';
+  }
+     
+  location /_matrix {
+     proxy_pass http://monolith;
+  }
+  
+  # postgresql backus
+  location /pg-backup {
+    auth_basic           "Admin area";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+    alias                "/var/lib/postgresql/backups/";
+    autoindex            on;
+  }
+}
+
+# nginx-status
+server {
+  listen 127.0.0.1;
+  server_name localhost;
+  location /nginx_status {
+    stub_status on;
+    access_log   off;
+    allow 127.0.0.1;
+    deny all;
+  }
+}
