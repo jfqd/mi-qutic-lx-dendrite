@@ -7,3 +7,5 @@ autoconf
 build-essential
 nginx
 htop
+apache2-utils
+jq
