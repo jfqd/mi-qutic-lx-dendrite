@@ -28,6 +28,9 @@ sed -i \
     -e "s/registration_shared_secret: \"\"/registration_shared_secret: \"${SHARED_SECRET}\"/" \
     -e "s/cache_size: 256/cache_size: 4096/" \
     -e "s/dns_cache:\n    enabled: false/dns_cache:\n    enabled: true/" \
+    -e "s/disable_federation: false/disable_federation: true/" \
+    -e "s/- matrix.org/#- matrix.org/" \
+    -e "s/- vector.im|#- vector.im/" \
     /etc/dendrite.yaml
 chown -R dendrite:root /etc/dendrite.yaml
 chmod 0640 /etc/dendrite.yaml
