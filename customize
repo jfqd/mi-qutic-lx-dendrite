@@ -8,6 +8,9 @@ export LC_ALL=en_US.utf8
 export LANGUAGE=en_US.utf8
 export LANG=en_US.utf8
 
+GO_VERSION="1.19.5"
+PGSQL_VERSION="15"
+
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 echo "* Remove apt-get workaround"
@@ -29,18 +32,20 @@ echo "* Add postgresql repository to apt sources"
 wget -O /usr/share/keyrings/postgresql.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
 echo "deb [signed-by=/usr/share/keyrings/postgresql.asc] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/postgresql.list
 
-echo "* Install requirements"
+echo "* Install postgres"
 apt-get update
 apt-get install -y postgresql postgresql-contrib
-curl -LO https://go.dev/dl/go1.19.5.linux-amd64.tar.gz
-tar -C /usr/local -xvf go1.19.5.linux-amd64.tar.gz
+
+echo "* Install go"
+curl -LO https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz
+tar -C /usr/local -xvf go${GO_VERSION}.linux-amd64.tar.gz
 export PATH=$PATH:/usr/local/go/bin
 
 echo "* Setup postgresql"
 sed -i 's/local   all             all                                     password/local   all             all                                     peer/' \
-  /etc/postgresql/15/main/pg_hba.conf
+  /etc/postgresql/${PGSQL_VERSION}/main/pg_hba.conf
 sed -i "s/#listen_addresses = 'localhost'/listen_addresses = 'localhost'/" \
-  /etc/postgresql/15/main/postgresql.conf
+  /etc/postgresql/${PGSQL_VERSION}/main/postgresql.conf
 
 echo "* Fix postgresql for lx-branch"
 sed -i -e "s|PIDFile=|#PIDFile=|" /lib/systemd/system/postgresql@.service
