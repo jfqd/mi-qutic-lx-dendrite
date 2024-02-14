@@ -11,7 +11,7 @@ Type=simple
 User=dendrite
 Group=dendrite
 WorkingDirectory=/home/dendrite/
-ExecStart=/usr/local/bin/dendrite-monolith-server -config /etc/dendrite.yaml
+ExecStart=/usr/local/bin/dendrite -config /etc/dendrite.yaml
 Restart=always
 LimitNOFILE=65535
 

@@ -1,8 +1,6 @@
 #!/usr/bin/bash
 
-echo "* Start postgresql"
-systemctl daemon-reload
-pg_createcluster 15 main --start || true
+echo "* Setup dendrite database"
 DB_PWD=$(openssl rand -hex 24)
 sudo -u postgres psql -c "CREATE USER dendrite;" || true
 sudo -u postgres psql -c "ALTER USER dendrite WITH PASSWORD '${DB_PWD}';" || true
@@ -11,7 +9,7 @@ for i in appservice federationapi mediaapi mscs roomserver syncapi keyserver use
     sudo -u postgres createdb -O dendrite -E UTF-8 dendrite_$i || true
 done
 
-echo "* Setup dendrite"
+echo "* Setup dendrite config"
 DOMAIN=$(/native/usr/sbin/mdata-get dendrite_domain)
 USER_SHORT=$(/native/usr/sbin/mdata-get user_shortname)
 USER_PWD=$(/native/usr/sbin/mdata-get dendrite_password)
@@ -30,7 +28,7 @@ sed -i \
     -e "s/dns_cache:\n    enabled: false/dns_cache:\n    enabled: true/" \
     -e "s/disable_federation: false/disable_federation: true/" \
     -e "s/- matrix.org/#- matrix.org/" \
-    -e "s/- vector.im|#- vector.im/" \
+    -e "s/- vector.im/#- vector.im/" \
     /etc/dendrite.yaml
 chown -R dendrite:root /etc/dendrite.yaml
 chmod 0640 /etc/dendrite.yaml
