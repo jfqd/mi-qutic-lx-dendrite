@@ -105,6 +105,7 @@ echo "* Ensure bootstrap will run next time"
 rm -rf /var/lib/bootstrap
 
 echo "* Cleaning up."
+cd /root
 rm -rf /usr/local/var/tmp/*
 rm -rf /root/dendrite
 rm -rf /root/go
