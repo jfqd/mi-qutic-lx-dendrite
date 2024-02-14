@@ -8,8 +8,8 @@ export LC_ALL=en_US.utf8
 export LANGUAGE=en_US.utf8
 export LANG=en_US.utf8
 
-GO_VERSION="1.19.5"
-PGSQL_VERSION="15"
+GO_VERSION="1.21.7"
+PGSQL_VERSION="16"
 
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
