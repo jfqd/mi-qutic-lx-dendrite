@@ -8,6 +8,7 @@ export LC_ALL=en_US.utf8
 export LANGUAGE=en_US.utf8
 export LANG=en_US.utf8
 
+DENDRITE_VERSION="0.13.6"
 GO_VERSION="1.21.7"
 PGSQL_VERSION="16"
 
@@ -63,9 +64,11 @@ chown -R dendrite:dendrite /var/log/dentrite/
 echo "* Build dendrite"
 git clone https://github.com/matrix-org/dendrite.git
 cd dendrite
-./build.sh
+git pull --tags
+git checkout "v${DENDRITE_VERSION}"
+go build -o bin/ ./cmd/...
 mv bin/* /usr/local/bin/
-mv dendrite-sample.monolith.yaml /etc/dendrite.yaml
+mv dendrite-sample.yaml /etc/dendrite.yaml
 generate-keys --private-key /etc/matrix_key.pem
 chown dendrite /etc/matrix_key.pem
 
