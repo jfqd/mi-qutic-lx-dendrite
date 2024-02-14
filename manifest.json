@@ -1,11 +1,11 @@
 {
   "name":         "qutic-lx-dendrite",
-  "version":      "0.11.0",
+  "version":      "0.13.6",
   "description":  "qutic dendrite image",
   "organization": "qutic development",
   "brand":        "Instance",
   "homepage":     "https://github.com/jfqd/mi-qutic-lx-dendrite",
-  "base":         "08a21bc0-5206-11ed-a485-9f8bf0f16829",
+  "base":         "64813eee-734d-11ee-bcf0-db475b509861",
   "customer_metadata": {
     "admin_authorized_keys": {"type": "text", "description": "SSH public authorized key(s) for the admin user"},
     "root_authorized_keys":  {"type": "text", "description": "SSH public authorized key(s) for the root user"},
